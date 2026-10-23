@@ -26,14 +26,19 @@ jobs:
 
       - name: Parse the SemVer label
         id: label
-        uses: UKHomeOffice/match-label-action@v1
+        uses: Home-Office-Digital/core-cloud-match-label-action@v1
         with:
           labels: minor,major,patch
           mode: singular
 
       - name: Calculate SemVer value
         id: calculate
-        uses: UKHomeOffice/semver-calculate-action@v2
+        uses: Home-Office-Digital/core-cloud-semver-calculate-action@v2
         with:
           increment: ${{ steps.label.outputs.matchedLabels }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          # Baseline from the highest existing release tag. Without this, after a
+          # skip-release merge leaves the base SHA untagged, the action falls back
+          # to 0.0.0 and skips its duplicate-tag check, so validation could pass a
+          # version that already exists or is below the latest release.
+          default_to_highest: true
