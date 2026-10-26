@@ -1,6 +1,5 @@
 locals {
-  # Core Cloud mandatory tags, mapping the snake_case cc_tags input to the
-  # hyphenated keys applied to every resource. Merged with any extra tags.
+  # Map the snake_case cc_tags input to the hyphenated Core Cloud tag keys.
   common_tags = {
     cost-centre      = var.cc_tags.cost_centre
     account-code     = var.cc_tags.account_code
@@ -12,18 +11,26 @@ locals {
     budget-holder    = var.cc_tags.budget_holder
   }
 
-  # Effective tags applied to every resource: optional caller-supplied tags
-  # merged with the mandatory Core Cloud tags applied LAST, so the enforced
-  # cc_tags always win and cannot be overridden by caller tags.
+  # common_tags last so the enforced cc_tags can't be overridden by var.tags.
   tags = merge(var.tags, local.common_tags)
 
-  # The distinct set of domains requiring a DNS validation record. Derived
-  # from the plan-time inputs (domain_name + SANs) so it can key for_each.
-  # A wildcard (*.example.com) and its apex (example.com) validate against an
-  # identical CNAME, so we strip the leading "*." and dedupe via toset to
-  # avoid creating two Route53 records with the same name.
+  # The set of domains to validate. A wildcard and its apex share a single
+  # validation CNAME, so the leading "*." is dropped and the result deduped.
   validation_domains = toset([
     for domain in concat([var.domain_name], var.subject_alternative_names) :
     trimprefix(domain, "*.")
   ])
+
+  # The DNS validation record for each domain, drawn from the certificate's
+  # validation options.
+  validation_records = {
+    for domain in local.validation_domains : domain => one(distinct([
+      for option in aws_acm_certificate.this.domain_validation_options : {
+        name  = option.resource_record_name
+        value = option.resource_record_value
+        type  = option.resource_record_type
+      }
+      if trimprefix(option.domain_name, "*.") == domain
+    ]))
+  }
 }
