@@ -8,7 +8,7 @@ The module requests a public certificate using DNS validation, and can optionall
 
 > **Important:** ACM certificates attached to a CloudFront distribution MUST be created in `us-east-1`.
 
-This is a child module, so the default `aws` provider (and the region it is configured with) is inherited from the caller. The module also declares an `aws.us_east_1` configuration alias which the caller must satisfy. For a standard `eu-west-2` certificate, point the aliased provider at the same region as the default provider. For a CloudFront certificate, pass a provider configured for `us-east-1` as the module's default `aws` provider.
+This is a child module, so the single `aws` provider (and the region it is configured with) is inherited from the caller. The module does not need to know which region you chose. For a standard regional certificate, pass your regional provider (or rely on default inheritance). For a CloudFront certificate, pass a provider configured for `us-east-1` as the module's `aws` provider: `providers = { aws = aws.us_east_1 }`.
 
 ## Usage
 
@@ -19,18 +19,8 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-}
-
 module "acm" {
   source = "git::https://github.com/Home-Office-Digital/core-cloud-acm-tf-module.git"
-
-  providers = {
-    aws           = aws
-    aws.us_east_1 = aws.us_east_1
-  }
 
   domain_name               = "example.service.gov.uk"
   subject_alternative_names = ["www.example.service.gov.uk"]
@@ -63,8 +53,7 @@ module "acm_cloudfront" {
   source = "git::https://github.com/Home-Office-Digital/core-cloud-acm-tf-module.git"
 
   providers = {
-    aws           = aws.us_east_1
-    aws.us_east_1 = aws.us_east_1
+    aws = aws.us_east_1
   }
 
   domain_name    = "cdn.example.service.gov.uk"

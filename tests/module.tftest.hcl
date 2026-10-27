@@ -1,9 +1,5 @@
 mock_provider "aws" {}
 
-mock_provider "aws" {
-  alias = "us_east_1"
-}
-
 run "module_test_scenario_1_tags" {
   command = plan
 

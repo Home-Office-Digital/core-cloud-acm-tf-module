@@ -1,7 +1,3 @@
-# The variables.tf contains the variable definitions for this module. When the
-# module is used, variables are configured as arguments in the module block.
-# Variables without a default value are required arguments.
-
 variable "domain_name" {
   description = "The primary fully qualified domain name (FQDN) for which to request the public certificate."
   type        = string
@@ -63,7 +59,6 @@ variable "renewal_alarm_sns_topic_arns" {
 variable "cc_tags" {
   description = "The mandatory Core Cloud enforced tags for costing and identification. All attributes are required."
   type = object({
-    # enforced tags, all required attributes for costing and ID
     cost_centre      = string
     account_code     = string
     portfolio_id     = string
