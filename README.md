@@ -1,6 +1,6 @@
 # Core Cloud ACM TF Module
 
-This is a Terraform child module to create and manage public TLS certificates via AWS Certificate Manager (ACM). It is a Tier 1 foundational module consumed by services such as Application Load Balancers (ALB), CloudFront distributions and OpenSearch custom endpoints.
+This is a Terraform child module to create and manage public TLS certificates via AWS Certificate Manager (ACM) to be consumed by services such as Application Load Balancers (ALB), CloudFront distributions and OpenSearch custom endpoints.
 
 The module requests a public certificate using DNS validation, and can optionally create the Route53 DNS validation records (and complete validation) for you, or expose the validation options so DNS can be managed externally. It can also create a CloudWatch alarm that monitors the certificate's `DaysToExpiry` metric to give early warning of renewal problems.
 
